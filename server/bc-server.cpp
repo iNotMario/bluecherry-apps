@@ -86,6 +86,7 @@ static std::queue<struct media_record> abandoned_media_to_update;
 static std::queue<struct media_record> abandoned_media_updated;
 
 static rtsp_server *rtsp = NULL;
+static hls_listener *hls = NULL;
 
 static char *component_error[NUM_STATUS_COMPONENTS];
 static char *component_error_tmp;
@@ -761,6 +762,7 @@ static int bc_check_db(void)
 		cur_threads++;
 		bc_rec->cfg_just_updated = true;
 		pthread_mutex_lock(&bc_rec_list_lock);
+		bc_rec->hls_stream = hls;
 		bc_rec_list.push_back(bc_rec);
 		pthread_mutex_unlock(&bc_rec_list_lock);
 	}
@@ -1160,6 +1162,16 @@ int main(int argc, char **argv)
 	if (rtsp->setup(7002)) {
 		bc_log(Error, "Failed to setup RTSP server");
 		return 1;
+	}
+
+	hls = new hls_listener;
+	if (!hls->register_listener(7003)) {
+		bc_log(Error, "Failed to setup HLS listener");
+		delete hls;
+		return 1;
+	} else {
+		std::thread hls_th(&hls_listener::run, hls);
+		hls_th.detach();
 	}
 
 	if (open_db_loop(config_file))
