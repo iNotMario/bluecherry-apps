@@ -916,14 +916,14 @@ int rtsp_connection::handlePause(rtsp_message &req)
 std::map<std::string,rtsp_stream*> rtsp_stream::streams;
 pthread_mutex_t rtsp_stream::streams_lock = PTHREAD_MUTEX_INITIALIZER;
 
-rtsp_stream *rtsp_stream::create(struct bc_record *bc, AVFormatContext *ctx[])
+rtsp_stream *rtsp_stream::create(struct bc_record *bc, AVFormatContext *ctx[], char *type = "main")
 {
 	rtsp_stream *st = new rtsp_stream;
 	st->bc_rec = bc;
 	st->id = bc->id;
 
 	std::ostringstream uris;
-	uris << "/live/" << bc->id;
+	uris << "/live/" << bc->id << "-" << type;
 	st->uri = uris.str();
 
 	char sdp[2048];

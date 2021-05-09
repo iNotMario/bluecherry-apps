@@ -38,7 +38,7 @@ static int io_write(void *opaque, uint8_t *buf, int buf_size)
 static int bc_streaming_setup_elementary(struct bc_record *bc_rec, std::shared_ptr<const stream_properties> props,
 	int index, enum AVMediaType type);
 
-int bc_streaming_setup(struct bc_record *bc_rec, std::shared_ptr<const stream_properties> props)
+int bc_streaming_setup(struct bc_record *bc_rec, std::shared_ptr<const stream_properties> props, char *type = "main")
 {
 	int ret = 0;
 
@@ -53,7 +53,7 @@ int bc_streaming_setup(struct bc_record *bc_rec, std::shared_ptr<const stream_pr
 	if (ret)
 		return ret;
 
-	bc_rec->rtsp_stream = rtsp_stream::create(bc_rec, bc_rec->stream_ctx);
+	bc_rec->rtsp_stream = rtsp_stream::create(bc_rec, bc_rec->stream_ctx, type);
 
 	return 0;
 }
